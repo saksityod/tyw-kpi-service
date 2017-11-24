@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+
+	var iusers = [];
+	var employees = [];
+	iusers.push({form_id:2, appraisal_item_id: 1,target_value:20, appraisal_item_name: 'KPI', nof_target_score: 1, weight_percent: 10});
+	iusers.push({form_id:2, appraisal_item_id: 2,target_value:30, appraisal_item_name: 'KPI 2', nof_target_score: 2, weight_percent: 20});
+	employees.push({emp_code: 1988001});
+	employees.push({emp_code: 1});
+	employees.push({emp_code: 1988003});
+	$.ajax( {url:'http://localhost/tyw_api/public/appraisal_assignment',
+			 type:"post",
+			 dataType:"json",
+			 contentType : 'application/json',
+			 data: JSON.stringify({
+				head_params: {
+					appraisal_type_id: 1,
+					appraisal_year: 2017,
+					frequency_id: 1,
+					period: 2,
+					action_to: 1,
+				},
+				employees: employees,
+				appraisal_items: iusers
+			 }), 
+			 headers: {Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYWQ3IiwiaXNzIjoiaHR0cDpcL1wvbG9jYWxob3N0XC90eXdfYXBpXC9wdWJsaWNcL3Nlc3Npb24iLCJpYXQiOjE0ODgxMzg2NjMsImV4cCI6MTQ4ODE3NDY2MywibmJmIjoxNDg4MTM4NjYzLCJqdGkiOiJjMTA5NTdjNDZkOWQ3MDcyOGYzZjQ3Yzc4MjQ4NDIwNSJ9.YVzTFO2L_LXyscM92mT0yJnz5O4oN7zeSEehf2uq6aU"},
+			 success:function(data, textStatus, jqXHR) {console.log(data);},
+			 error: function(jqXHR, textStatus, errorThrown) {console.log(errorThrown);}
+	});
+	
+		
+});
+</script>
+</head>
+<body>
+
+<p>DQS Test</p>
+<input type="file" name="import" multiple>
+
+<form action="http://10.15.100.12/tyw_api/public/appraisal_data/export?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMsImlzcyI6Imh0dHA6XC9cLzEwLjE1LjEwMC4xMlwvdHl3X2FwaVwvcHVibGljXC9zZXNzaW9uIiwiaWF0IjoxNDg3ODE4Mjg3LCJleHAiOjE0ODc4NTQyODcsIm5iZiI6MTQ4NzgxODI4NywianRpIjoiOWYwOWExMjZkOTA1NTAyMWI5ZjU2ODdmNjFiZWIzZmEifQ.Kh1v6an9tJF64XeXUxu0JXXI1EkMX4QbYpVmW3iy3y8" method="POST">
+<input type="submit">
+</form>
+
+</body>
+</html>
