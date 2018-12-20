@@ -1,5 +1,5 @@
 <?php
-
+ 
 namespace App\Http\Controllers;
 
 use App\EmpLevel;
@@ -244,6 +244,9 @@ class ImportEmployeeController extends Controller
 	{
 		try {
 			$item = Employee::findOrFail($emp_code);
+			$item->working_start_date = ($item->working_start_date == '0000-00-00') ? NULL : $item->working_start_date;
+			$item->probation_end_date = ($item->probation_end_date == '0000-00-00') ? NULL : $item->probation_end_date;
+			$item->acting_end_date = ($item->acting_end_date == '0000-00-00') ? NULL : $item->acting_end_date;
 		} catch (ModelNotFoundException $e) {
 			return response()->json(['status' => 404, 'data' => 'Employee not found.']);
 		}

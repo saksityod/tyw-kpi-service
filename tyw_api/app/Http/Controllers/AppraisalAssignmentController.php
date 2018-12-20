@@ -1,5 +1,5 @@
 <?php
-
+ 
 namespace App\Http\Controllers;
 
 use App\AppraisalItemResult;
@@ -9,6 +9,7 @@ use App\EmpResult;
 use App\EmpResultStage;
 use App\WorkflowStage;
 use App\Employee;
+use App\CDSResult;
 
 use Auth;
 use DB;
@@ -26,7 +27,6 @@ class AppraisalAssignmentController extends Controller
 
 	public function __construct()
 	{
-
 	   $this->middleware('jwt.auth');
 	}
 	
@@ -1884,8 +1884,7 @@ class AppraisalAssignmentController extends Controller
 	}
 	
 	public function destroy($emp_result_id)
-	{
-	
+	{	
 		try {
 			$item = EmpResult::findOrFail($emp_result_id);
 		} catch (ModelNotFoundException $e) {
@@ -1896,7 +1895,30 @@ class AppraisalAssignmentController extends Controller
 			if ($item->status == 'Assigned' || $item->status == 'Reject' || $item->status == 'Draft') {
 				EmpResultStage::where('emp_result_id',$item->emp_result_id)->delete();
 				AppraisalItemResult::where('emp_result_id',$item->emp_result_id)->delete();			
+				
+				// delete cds result 
+				try {
+					$itemPeriod = DB::select("
+						SELECT
+							emp_code, ap.appraisal_year, ap.start_date, ap.end_date
+						FROM emp_result er
+						INNER JOIN appraisal_period ap ON ap.period_id = er.period_id
+						WHERE er.emp_result_id = '{$item->emp_result_id}'
+					");
+					$itemPeriod = $itemPeriod[0];
+					if($itemPeriod){
+						$cdsResult = CDSResult::where('emp_code', $itemPeriod->emp_code)
+							->where('appraisal_year', $itemPeriod->appraisal_year)
+							->whereRaw("CAST(CONCAT(cds_result.appraisal_year,'-',cds_result.appraisal_month_no,'-01') AS DATE) BETWEEN '{$itemPeriod->start_date}' AND '{$itemPeriod->end_date}'")
+							->delete();
+					}
+				} catch (Exception $e) {
+					return response()->json(['status' => 400, 'data' => 'Cannot delete CDS Result at EmpCode:'.$itemPeriod->emp_code.' Year:'.$itemPeriod->appraisal_year.' RefEmpResult:'.$item->emp_result_id]);
+				}
+				
+				// delete Emp Result
 				$item->delete();
+
 			} else {
 				return response()->json(['status' => 400, 'data' => 'Cannot delete Appraisal Assignment at this stage.']);
 			}
