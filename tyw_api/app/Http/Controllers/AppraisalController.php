@@ -1450,6 +1450,7 @@ class AppraisalController extends Controller
 			on c.structure_id = g.structure_id
 			and b.appraisal_level_id = g.appraisal_level_id	
 			where a.emp_result_id = ?
+			order by b.structure_id,b.appraisal_item_id
 		", array($emp_result_id));
 		
 		$groups = array();
